@@ -8,6 +8,7 @@ var socket = require('socket.io');
 mongoose.connect('mongodb://admin123:admin123@ds249079.mlab.com:49079/oauth', () => {
     console.log('MONGO CONNECT')
 })
+app.set(express.static('public'))
 app.use(function (req, res, next) {
     var allowedOrigins = ['http://localhost:3000', 'http://localhost:3000?'];
     var origin = req.headers.origin;
@@ -26,30 +27,23 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.get('/', (req, res, err) => {
-
     res.send({ msg: 'OK bhai' })
 })
 app.get('/todos', (req, res, err) => {
-    // console.log(req.body)
     ToDo.find().then((data) => {
         res.send({ allToDos: data })
     })
-
 })
 
 app.use('/todo', require('./routes/todo'))
-
-
 let server = app.listen(4001, () => {
     console.log('Listen At 4001')
 })
-
-
 var io = socket(server);
 
-var clients = 0;
+// var clients = 0;
 io.on('connection', (socket) => {
-    clients++;
+    // clients++;
     console.log('made socket connection', socket.id);
 
     // ADD TODO
@@ -82,8 +76,8 @@ io.on('connection', (socket) => {
     });
 
     // Brodcasting 
-    socket.emit('newclientconnect', { description: 'Hey, welcome!' });
-    socket.broadcast.emit('newclientconnect', { description: clients + ' clients connected!' })
+    // socket.emit('newclientconnect', { description: 'Hey, welcome!' });
+    // socket.broadcast.emit('newclientconnect', { description: clients + ' clients connected!' })
     // Disconnect
     socket.on('disconnect', function () {
         clients--;
@@ -93,12 +87,12 @@ io.on('connection', (socket) => {
 
 });
 
-let nsp = io.of('/nsp');
+// let nsp = io.of('/nsp');
 
-nsp.on('connection', (socket) => {
-    
-    nsp.emit('EMIT_IN_NSP', "Hi from new Namespace")
-    socket.join('room1');
-    nsp.to('room1').emit('event', { msg: "EVENT" });
+// nsp.on('connection', (socket) => {
 
-})
+//     nsp.emit('EMIT_IN_NSP', "Hi from new Namespace")
+//     socket.join('room1');
+//     nsp.to('room1').emit('event', { msg: "EVENT" });
+
+// })
